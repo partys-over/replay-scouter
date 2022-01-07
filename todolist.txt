@@ -1,0 +1,5 @@
+- make sure spaces can be used as a replay seperator (this is cbt)
+- fix dark mode
+- pastebin raw importing
+- sorting types counter by greatest to least
+- add pre-gen 6 type stuff (rotom forms, fairy types)

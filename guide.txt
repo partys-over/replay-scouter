@@ -1,0 +1,18 @@
+This is a manual replay scouter, meaning you the user have to gather all the replays. This might be slightly annoying but this scouter has no problems scouting hidden games or games played on alts. 
+
+Drop the replays in the big box, either make them one giant link or seperate them with newlines as specified on the main page. For usernames, seperate them by a comma and a space. Delete weird characters if you can, maybe, but I made a function to delete everything but characters anyways. Usernames are not case sensitive. 
+
+Pastebin raw is extremely optional, and also not coded yet.
+
+here's some 1v1 replay threads if that's where you're scouting from:
+https://www.smogon.com/forums/threads/1v1-premier-league-v-replays-and-usage-stats.3676189/
+https://www.smogon.com/forums/threads/world-cup-of-1v1-iv-replays-usage-stats.3667670/
+https://www.smogon.com/forums/threads/1v1-pl-iv-replays-usage-stats.3660318/
+and here's the eo scouter if you want to find random replays
+https://replaystats-eo.herokuapp.com/scouter/
+Don't worry about duplicates, this program removes them hopefully.
+
+This program could fuck up at any moment tbh, the web host is supposedly against website scraping lol. I have the code backed up though so don't worry.
+
+DM me if theres any bugs/issues/you have any requests: dom#8034
+Also don't give this program to people without asking me. I have no issues giving this to a lot of people I just wanna know who has it.
