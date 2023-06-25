@@ -1,5 +1,6 @@
 <?php
 include('pokemontypes.php');
+header("content-type: text/plain");
 
 //include('simple_html_dom.php');
 //$html = file_get_html('https://replay.pokemonshowdown.com/gen41v1-1231369678.log');
@@ -10,10 +11,20 @@ $samplereplays = ['https://replay.pokemonshowdown.com/smogtours-gen41v1-476545.l
 
 $winners = [];
 global $winners;
+$tab = "\t";
+global $tab;
 
 function fixstr($samplestr) {
 	preg_replace("/[^a-zA-Z0-9]+/", "", $samplestr); $samplestr = strtolower($samplestr);
 	return $samplestr;
+}
+
+function urlmon($string) { // losercases, also removes random parts from mon names to make it url friendly with no issues
+	$key1 = str_replace('-*', '', $string);
+	$key2 = str_replace(' ', '-', $key1);
+	$key3 = str_replace(':', '', $key2);
+	$final = strtolower($key3);
+	return($final);
 }
 
 
@@ -24,8 +35,13 @@ global $teamnumber;
 
 $verifiedreplays = [];
 ?>
-<center>
 <?php
+$newline = "\n";
+$suffix1 = ['-Unbound', '-Therian', '-Alola', '-Galar', '-Hisui', '-Black', '-Antique', '-Low-Key', '-Dada'];
+$suffix2 = ['-U', '-T', '-A', '-G', '-H', '-B', '', '', ''];
+
+
+
 $box = htmlspecialchars($_POST['statsbox']);
 if (strlen($box) > 2) {
 	$submitreplays = explode('https://', $box);
@@ -56,8 +72,9 @@ if (strlen($box) > 2) {
 
 	$lastreplaynum = count($verifiedreplays);
 	$lastreplaynum = ($lastreplaynum - 1);
-
-	if (strlen(end($verifiedreplays)) > 59) { // means hidden replay. weird bug if u dont add an extra newline where it doesnt add the last replay
+	//echo '$' . strlen(end($verifiedreplays)); debugging
+	//if (str_contains(end($verifiedreplays), 'pw')) {
+	if (strlen(end($verifiedreplays)) > 70) { // means hidden replay. weird bug if u dont add an exreplaytra newline where it doesnt add the last 
 		//echo end($verifiedreplays);
 		//echo "stankygooch";
 		//echo $verifiedreplays[1];
@@ -65,6 +82,7 @@ if (strlen($box) > 2) {
 		$prereconstruction = explode ('.l', $verifiedreplays[$lastreplaynum]);
 		$verifiedreplays[$lastreplaynum] = $prereconstruction[0] . "pw.l" . $prereconstruction[1];
 		//echo $verifiedreplays[$lastreplaynum];
+		//echo '-' . $prereconstruction[1] . '-';
 	}
 }
 else {
@@ -77,10 +95,18 @@ else {
 
 //$scoutedalts0 = ['SECTOR 7 dom', 'fadeonitdom', 'loopedupdom', 'G5 SCRAF dom'];
 $scoutedalts0 = ['Synonimous'];
-$scoutedalts02 = [];
+$scoutedalts02 = []; #scoutedalts02 is an old variable i did absolutely nothing with for the longest until i realized all lowercase no spaces names looked ugly on the sheet. i decided to make it a backup list with people's exact ps
 $scoutedalts = [];
+$opponents = [];
+$uniqueopponents = [];
+$addedopponents = [];
+
+global $addedopponents;
+
+//print_r($opponents);
 
 foreach ($scoutedalts as $key => $value) {
+	array_push($scoutedalts02, $name);
 	$name = preg_replace("/[^a-zA-Z0-9]+/", "", $value);
 	$name = strtolower($name);
 	array_push($scoutedalts, $name);
@@ -146,10 +172,21 @@ else {
 	global $replay2;
 }
 
+
+if (count($verifiedreplays) < 24) {
+	echo "Team/Replay Count: " . count($verifiedreplays) . ". Small sheet reccomended.\n\n";
+}
+elseif (count($verifiedreplays) > 24 and count($verifiedreplays) < 46) {
+	echo "Team/Replay Count: " . count($verifiedreplays) . ". Main sheet reccomended.\n\n";
+}
+elseif (count($verifiedreplays) > 46) {
+	echo "Team/Replay Count: " . count($verifiedreplays) . ". Bigger sheet reccomended.\n\n";
+}
+
 function scoutreplay($replay) {
 	$winners = [];
 	$guy = [];
-	global $scoutedalts, $allpokemon, $allteams, $firetypes, $firesused, $watertypes, $watersused, $grasstypes, $grassesused, $groundtypes, $groundsused, $steeltypes, $steelsused, $fairytypes, $fairiesused, $flyingtypes, $flyingsused, $psychictypes, $psychicsused, $darktypes, $darksused, $dragontypes, $dragonsused, $electrictypes, $electricsused, $fightingtypes, $fightingsused, $ghosttypes, $ghostsused, $icetypes, $icesused, $normaltypes, $normalsused, $poisontypes, $poisonsused, $rocktypes, $rocksused, $bugtypes, $bugsused, $replay2, $winners, $guy;
+	global $scoutedalts, $scoutedalts02, $allpokemon, $allteams, $firetypes, $firesused, $watertypes, $watersused, $grasstypes, $grassesused, $groundtypes, $groundsused, $steeltypes, $steelsused, $fairytypes, $fairiesused, $flyingtypes, $flyingsused, $psychictypes, $psychicsused, $darktypes, $darksused, $dragontypes, $dragonsused, $electrictypes, $electricsused, $fightingtypes, $fightingsused, $ghosttypes, $ghostsused, $icetypes, $icesused, $normaltypes, $normalsused, $poisontypes, $poisonsused, $rocktypes, $rocksused, $bugtypes, $bugsused, $replay2, $winners, $guy, $opponents, $uniqueopponents, $addedopponents;
 
 	$htmlbeta = file_get_contents($replay);
 
@@ -174,6 +211,19 @@ function scoutreplay($replay) {
 	$winnername = preg_replace("/[^a-zA-Z0-9]+/", "", $winnername); $winnername = strtolower($winnername);
 	//echo $winnername . "<br />";
 	array_push($winners, $winnername);
+
+	if (in_array($playerone, $scoutedalts)) { # looks for if the alt is a player or not, if not add to opponents list.
+		array_push($opponents, $playertwo);
+		if (!(array_search($playertwo, $uniqueopponents))) { #i did nothing with this list lol
+			array_push($uniqueopponents, $playertwo);
+		}
+	} 
+	elseif (in_array($playertwo, $scoutedalts)) { # same ting
+		array_push($opponents, $playerone);
+		if (!(array_search($playerone, $uniqueopponents))) {
+			array_push($uniqueopponents, $playerone);
+		}
+	}
 	//array_push($guy, $winnername);
 	//print_r($winners);  // this shit is art if you uncomment it
 	//print_r($guy);
@@ -319,7 +369,7 @@ function scoutreplay($replay) {
 		}
 	}
 	else {
-		echo '<br /> u forgot an alt name, budster';
+		echo "\nu forgot an alt name, budster";
 		echo "'" . $playerone . "' "; echo $playertwo;
 		//print_r($scoutedalts);
 	}
@@ -328,27 +378,54 @@ foreach ($verifiedreplays as $key => $value) {
 	scoutreplay($value);
 }
 
+echo "#TEAMS (DONT FORGET TO PUT INTO PASTEBIN/NOTEPAD FIRST)#\n";
+// print_r($opponents);
+// print_r($uniqueopponents);
 
-echo "Teams (you can click to be linked to game): <br />";
+$teamcount = 0;
+global $teamcount;
 
 if ($replay2 == 1) { // 1v1, 3 pkmn each team
 	foreach ($allteams as $key => $value) {
-		?><a style="text-decoration: none; color: black;" target="_blank" href="<?php echo substr($verifiedreplays[$key], 0, -4) ?>">
-		<?php
 		// fart
+		// WHERE TEAMS START BEING PRINTED
 		for ($i=0; $i < 3; $i++) { 
 			if ($i == 2) {
+				# win
 				if (in_array($winners[$teamnumber], $scoutedalts)) {
-					echo $value[$i] . ' (W)' .  "<br />"?></a><?php ;
+					echo 'IMAGE("https://www.smogon.com/forums//media/minisprites/' . urlmon($value[$i]) . '.png")' . ',"' . $value[$i] . '",' . 'HYPERLINK("' . substr($verifiedreplays[$key], 0, -4) . '", "W")}' . "\n";
+					#echo substr($verifiedreplays[$key], 0, -4)
+					//echo $value[$i] . ' (W)' .  "<br />"
 					$teamnumber = $teamnumber + 1;
+				}
+				# loss
+				else {
+					#echo '=IMAGE("https://www.smogon.com/forums//media/minisprites/' . urlmon($value[$i]) . '.png")' . htmlspecialchars($tab) . $value[$i] . htmlspecialchars($tab) . '=HYPERLINK("' . substr($verifiedreplays[$key], 0, -4) . '", "L")' . "\n";
+					echo 'IMAGE("https://www.smogon.com/forums//media/minisprites/' . urlmon($value[$i]) . '.png")' . ',"' . str_replace($suffix1, $suffix2, $value[$i]) . '",' . 'HYPERLINK("' . substr($verifiedreplays[$key], 0, -4) . '", "L")}' . "\n";
+					$teamnumber = $teamnumber + 1;
+				}
+			} 
+			# VERSION E E
+			elseif ($i == 1) { #second mon
+				echo 'IMAGE("https://www.smogon.com/forums//media/minisprites/' . urlmon($value[$i]) . '.png")' . ', "' . str_replace($suffix1, $suffix2, $value[$i]) . '",';
+			}
+			elseif ($i == 0) { # first mon
+				#echo $opponents[$teamcount] . (array_search($opponents[$teamcount], $addedopponents));
+				if (array_search($opponents[$teamcount], $addedopponents)) {
+					echo '={"' . ' ' . '",IMAGE("https://www.smogon.com/forums//media/minisprites/' . urlmon($value[$i]) . '.png")' . ', "' . str_replace($suffix1, $suffix2, $value[$i]) . '",';
+					$teamcount = $teamcount + 1;
 				}
 				else {
-					echo $value[$i] . ' (L)' .  "<br />"?></a><?php ;
-					$teamnumber = $teamnumber + 1;
+					echo '={"' . ucfirst($opponents[$teamcount]) . '",IMAGE("https://www.smogon.com/forums//media/minisprites/' . urlmon($value[$i]) . '.png")' . ', "' . str_replace($suffix1, $suffix2, $value[$i]) . '",';
+					# dood ampersands r glitched grrrr
+					//echo 'BALLS ' . $teamcount;
+					array_push($addedopponents, $opponents[$teamcount]);
+					$teamcount = $teamcount + 1;
 				}
-			}
-			else {
-				echo $value[$i] . " / ";
+
+			}			
+			else { # debug :suar:
+				echo "wat";
 			}
 		}
 	}
@@ -356,8 +433,6 @@ if ($replay2 == 1) { // 1v1, 3 pkmn each team
 
 else { // 6 mon team
 	foreach ($allteams as $key => $value) {
-		?><a style="text-decoration: none; color: black;" target="_blank" href="<?php echo substr($verifiedreplays[$key], 0, -4) ?>">
-		<?php
 		for ($i=0; $i < 6; $i++) { 
 			if ($i == 5) {
 				echo $value[$i] . "<br />"?></a><?php ;
@@ -381,24 +456,62 @@ foreach ($allpokemon as $key => $value) {
 		array_push($nodupespokemon, $value);
 	}
 }
-echo "<br />";
+/*echo "<br />";
 echo "Number of Teams: " . count($allteams) . "<br />";
 echo "Number of Pokemon: " . count($allpokemon) . "<br />";
-echo "Number of Unique Pokemon: " . count($nodupespokemon) . "<br />";
+echo "Number of Unique Pokemon: " . count($nodupespokemon) . "<br />";*/
+
+if (isset($_POST['altusagebox'])) {
+	echo "\n#POKEMON USAGE (TAB 1)#\n";
+}
+else {
+	echo "\n#POKEMON USAGE#\n";
+}
+// $alternateusage = True; unused beta variable
+// global $alternateusage; unused beta variable
+// EXPLANATION: IF THE CHECKBOX IS CLICKED FOR 2 TAB USAGE, IT PRINTS THE EVEN NUMBER MONS, THEN DOES A SECOND LOOP FOR THE ODD ONES.
+$pkmnusagecount = 0;
+global $pkmnusagecount;
+$pkmnusagecount2 = 0;
+global $pkmnusagecount2;
 
 foreach ($countingfreq as $key => $value) { // the main thing that shows mon: number
-	$key = str_replace('-*', '', $key);
-	$key = str_replace(' ', '-', $key);
-	$final = str_replace(':', '', $key);
+	$key1 = str_replace('-*', '', $key);
+	$key2 = str_replace(' ', '-', $key1);
+	$final = str_replace(':', '', $key2);
+	$tab = "\t";
+	// mon printing
+	?><?php 
+	if (!isset($_POST['altusagebox'])) {
+		echo '=IMAGE("https://www.smogon.com/forums//media/minisprites/' . strtolower($final) . '.png")' . htmlspecialchars($tab) . str_replace($suffix1, $suffix2, $key) . htmlspecialchars($tab) . substr(strval(($value/count($allteams) * 100)), 0, 5) . '%' . $tab . $value . "\n";
+	}
+	else {
+		if ($pkmnusagecount % 2 == 0) {
+			echo '=IMAGE("https://www.smogon.com/forums//media/minisprites/' . strtolower($final) . '.png")' . htmlspecialchars($tab) . str_replace($suffix1, $suffix2, $key) . htmlspecialchars($tab) . substr(strval(($value/count($allteams) * 100)), 0, 5) . '%' . $tab . $value . "\n";
+		}
+		$pkmnusagecount = $pkmnusagecount + 1;
+	}
+}
 
-	?><img src="https://www.smogon.com/forums//media/minisprites/<?php echo strtolower($key) ?>.png" /><?php echo $key . ': ' . $value . ' (' . substr(strval(($value/count($allteams) * 100)), 0, 5) . '%)<br />';
+if (isset($_POST['altusagebox'])) {
+	echo "#TAB2#\n";
+	foreach ($countingfreq as $key => $value) { // the main thing that shows mon: number
+		$key1 = str_replace('-*', '', $key);
+		$key2 = str_replace(' ', '-', $key1);
+		$final = str_replace(':', '', $key2);
+		$tab = "\t";	
+		if ($pkmnusagecount2 % 2 != 0) {
+				echo '=IMAGE("https://www.smogon.com/forums//media/minisprites/' . strtolower($final) . '.png")' . htmlspecialchars($tab) . str_replace($suffix1, $suffix2, $key) . htmlspecialchars($tab) . substr(strval(($value/count($allteams) * 100)), 0, 5) . '%' . $tab . $value . "\n";
+		}
+		$pkmnusagecount2 = $pkmnusagecount2 + 1;
+	}
 }
 
 
 //var_dump($dar);
 function typedump($typeused, $tstring) {
 	global $allpokemon;
-	echo "<br />";
+	echo "\n";
 	$typecounting = array_count_values($typeused);
 	arsort($typecounting);
 	$typesum = 0;
@@ -422,12 +535,14 @@ function typedump($typeused, $tstring) {
 		$typeicon0 =  str_replace('Type: ', 'Type-', $typeicon0);
 		$typeicon0 =  str_replace('-*', '', $typeicon0);
 		$typeicon = substr(strtolower($typeicon0), 0, strpos($typeicon0, ' '));
-		?><img src="https://www.smogon.com/forums//media/minisprites/<?php echo $typeicon; ?>.png" /><?php echo $value;
+		echo $value;
 	}
 
 }
 ?>
 <?php
+echo "\n#TYPESUSED#\n";
+
 
 typedump($watersused, "Water");
 typedump($firesused, "Fire");
@@ -448,14 +563,10 @@ typedump($rocksused, "Rock");
 typedump($icesused, "Ice");
 typedump($bugsused, "Bug");
 
-
-
+print_r($addedopponents);
 
 //print_r($watersused);
 
 //$split = explode($html, "|");
 //var_dump($split);
 ?>
-<br /><br /><br />
-</center>
-<a href="index.php"><button>Back</button></a><br />
