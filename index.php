@@ -22,9 +22,9 @@ function twoindexes() {
 		<img src="https://www.smogon.com/forums//media/minisprites/<?php echo twoindexes()[0]; ?>.png" style="text-decoration:none; display: inline; position: relative; top: 6px;">goliadscouter: sheet edition<img src="https://www.smogon.com/forums//media/minisprites/<?php echo twoindexes()[1]; ?>.png" style="text-decoration:none; display: inline; position: relative; top: 6px;">
 	</h1>
 	<br />
-	<u>Replays</u>:<br />
+	<u>Replays</u> (put a newline after each one):<br />
 	<form action="scouter.php" method="post">
-	<textarea rows="20" cols="60" id="statsbox" name="statsbox"wrap="soft" method="post"></textarea><br />(put a newline after every replay)<br />
+	<textarea rows="20" cols="60" id="statsbox" name="statsbox"wrap="soft" method="post"></textarea><br />
 	<input type="checkbox" name="altusagebox" value="altusageboxvalue" />2 tab pokemon usage <a href="http://warpzone.rf.gd/scouter322/2_tab_pkmn_usage.png" target="_blank" style="text-decoration:none; font-size: 10px">(what is this?)</a><br />
   	<u>Usernames</u>:<br /><input type="text" id="fname" name="fname" method="post"><br />
   	<input type="submit" value="Send" id="poop" name="poop">
@@ -39,15 +39,18 @@ function twoindexes() {
 	<h1 style="text-decoration:none; display: inline;"><a href="https://github.com/partys-over/replay-scouter" target="_blank" style="text-decoration:none; color: mediumpurple;">[source code]</a></h1>
 	</center>
 	<br />
-	<div style="text-decoration:none; text-align: center">
+	<div style="text-decoration:none; text-align: center;">
+	 <div style="display: inline-block; text-align: left;">
 	<h3 style="text-decoration:none; display: inline">06/25/23</h3>
-	<ul style="text-decoration:none; text-align: center; list-style-position: inside; display: inline;">
-	<li >added 2 tab pokemon usage</a>, which allows for a simple top to bottom across 2 sheet tabs</li>
+	<ul style="text-decoration:none; text-align: left; list-style-position: inside; display: inline;">
+	<li>added 2 tab pokemon usage</a>, which allows for a simple top to bottom across 2 sheet tabs</li>
 	<li>the scouter now tells you which sheet template is best for you to use depending on amount of replays</li>
 	<li>fixed bug where last replay sometimes eaten up</li>
 	<li>made form names shorter the tab after mon sprites</li>
 	<li>more options/better layout for the sheet templates</li>
+	<li>lastly added all the above links/messed with this page's UI as you can see</li>
 </ul>
+</div>
 </div>
 </html>
 
