@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Builder Sheet Self Scouter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding-top: 2vh;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-top: 0;
+        }
+        textarea {
+            width: 98%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            font-family: monospace;
+            resize: vertical;
+            overflow-y: auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .controls, .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button {
+            padding: 12px 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #copyButton {
+            font-size: 14px;
+            padding: 6px 12px;
+            background-color: #6c757d;
+        }
+        #copyButton:hover {
+            background-color: #5a6268;
+        }
+        #copyButton.copied {
+            background-color: #28a745;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 30px;
+            height: 15px;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 11px;
+            width: 11px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(11px);
+            -ms-transform: translateX(11px);
+            transform: translateX(15px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Builder Sheet Self Scouter</h1>
+
+        <label for="inputText">Paste Teams Here:</label>
+        <textarea id="inputText" rows="15"></textarea>
+
+        <div class="controls">
+            <div class="checkbox-container">
+                <label class="switch">
+                    <input type="checkbox" id="usageFormatCheckbox">
+                    <span class="slider round"></span>
+                </label>
+                <label for="usageFormatCheckbox" style="margin-bottom:0; font-weight:normal;">2 Tab Pokémon Usage</label>
+                <a href="https://xelly.ezyro.com/scouter322/2_tab_pkmn_usage.png" target="_blank" style="text-decoration:none; font-size: 10px">(what is this?)</a>
+            </div>
+            <div class="checkbox-container">
+                <label class="switch">
+                    <input type="checkbox" id="keepFormsCheckbox">
+                    <span class="slider round"></span>
+                </label>
+                <label for="keepFormsCheckbox" style="margin-bottom:0; font-weight:normal;">Keep Mega & Primal forms</label>
+            </div>
+            <button onclick="convertText()">Convert</button>
+        </div>
+
+        <div class="output-header">
+            <label for="outputTeams">Teams:</label>
+            <button id="copyButton" onclick="copyOutput('outputTeams')">Copy Teams</button>
+        </div>
+        <textarea id="outputTeams" rows="2"></textarea>
+
+        <div class="output-header">
+            <label for="outputTab1">Usage Stats Tab 1:</label>
+            <button id="copyButton" onclick="copyOutput('outputTab1')">Copy Tab 1</button>
+        </div>
+        <textarea id="outputTab1" rows="2"></textarea>
+
+        <div class="output-header">
+            <label for="outputTab2">Usage Stats Tab 2:</label>
+            <button id="copyButton" onclick="copyOutput('outputTab2')">Copy Tab 2</button>
+        </div>
+        <textarea id="outputTab2" rows="2"></textarea>
+
+        <div>
+            <ul>
+                <li>shoutouts to jacob for helping code this</li>
+                <li>this is used to self scout on my sheet template and organize your teams+usage from your builder</li>
+                <li>make sure to go to a specific tier or folder and click the "backup all teams from this builder"<br>(you need the === [gen] team name ===)</li>
+                <li>if you wanna be thorough, the order will matter</li>
+            </ul>
+        </div>
+    </div>
+
+    
+
+    <script>
+        function copyOutput(elemId) {
+            const outputTextArea = document.getElementById(elemId);
+            outputTextArea.select();
+            document.execCommand('copy');
+            
+            const copyButton = document.getElementById('copyButton');
+            copyButton.textContent = 'Copied!';
+            copyButton.classList.add('copied');
+            setTimeout(() => {
+                copyButton.textContent = 'Copy Output';
+                copyButton.classList.remove('copied');
+            }, 2000);
+        }
+
+        function convertText() {
+            const inputText = document.getElementById('inputText').value;
+            const keepMegaAndPrimal = document.getElementById('keepFormsCheckbox').checked;
+            const snake = document.getElementById('usageFormatCheckbox').checked;
+            const teamsAsText = inputText.split('===');
+            const outputTeamsArea = document.getElementById('outputTeams');
+            const outputTab1Area = document.getElementById('outputTab1');
+            const outputTab2Area = document.getElementById('outputTab2');
+            
+            const allFormulas = [];
+            let usage = {};
+            let totalPokemon = 0;
+
+            for (const teamText of teamsAsText) {
+                if (teamText.trim().length === 0) continue;
+
+                const lines = teamText.trim().split('\n');
+                const currentTeamPokes = [];
+
+                for (const line of lines) {
+                    if (line.includes('@')) {
+                        let namePart = line.split('@')[0].trim();
+                        let rawPokemonName;
+
+                        namePart = namePart.replace(/\s*\([MF]\)\s*$/, '').trim();
+
+                        const parenthesisStart = namePart.indexOf('(');
+                        const parenthesisEnd = namePart.lastIndexOf(')');
+
+                        if (parenthesisStart !== -1 && parenthesisEnd > parenthesisStart) {
+                            rawPokemonName = namePart.substring(parenthesisStart + 1, parenthesisEnd).trim();
+                        } else {
+                            rawPokemonName = namePart;
+                        }
+
+                        // This will be the base for both URL and display name
+                        let processedName = rawPokemonName;
+
+                        // Only if the checkbox is UNCHECKED, remove mega/primal forms
+                        if (!keepMegaAndPrimal) {
+                            processedName = processedName
+                                .replace(/-mega-y/i, '')
+                                .replace(/-mega-x/i, '')
+                                .replace(/-mega/i, '')
+                                .replace(/-primal/i, '');
+                        }
+
+                        // Create the URL from the processed name
+                        const pName_url = processedName
+                            .toLowerCase()
+                            .replace(/ /g, '-') // Use hyphens for spaces (e.g., Tapu Fini)
+                            .replace(/[^a-z0-9-]/g, '');
+
+                        // Create the Display version from the processed name, applying other abbreviations
+                        let pName_display = ''
+
+                        if(keepMegaAndPrimal){
+                            if(processedName.match(/-mega-y/i) ||
+                            processedName.match(/-mega-x/i)) {
+                                pName_display = processedName.replace(/-mega-y/i, '-Y').replace(/-mega-x/i, '-X')
+                            } else {
+                                pName_display = processedName.replace(/-(\w).*/i, '-$1')
+                            }
+                        } else {
+                            pName_display = processedName.replace(/-(\w).*/i, '-$1')
+                        }
+
+                        currentTeamPokes.push({ url: pName_url, display: pName_display });
+                    }
+                }
+                
+                
+
+                if (currentTeamPokes.length >= 3) {
+                    const pokesForFormula = currentTeamPokes.slice(0, 3);
+                    
+                    let formula = '={" ",';
+                    
+                    pokesForFormula.forEach((poke, index) => {
+                        formula += `IMAGE("https://www.smogon.com/forums//media/minisprites/${poke.url}.png"), "${poke.display}"`;
+                        if (index < pokesForFormula.length - 1) {
+                            formula += ',';
+                        }
+                        //console.log(Object.getOwnPropertyNames(usage))
+                        if (Object.getOwnPropertyNames(usage).includes(poke.display)){
+                            usage[poke.display].count += 1
+                        } else {
+                            Object.defineProperty(usage, poke.display, {value:{url: poke.url, count: 1}});
+                        }
+                        totalPokemon += 1
+                    });
+                    
+                    formula += '}';
+                    allFormulas.push(formula);
+                }
+            }
+            
+            usageArray = []
+            console.log(totalPokemon)
+            
+            Object.getOwnPropertyNames(usage).forEach((poke) => {
+                usageArray.push({ name: poke, url: usage[poke].url, count: usage[poke].count, percent: usage[poke].count/totalPokemon * 100})
+            });
+            
+            usageArray.sort((a,b) => b.count - a.count);
+
+            let uniqueMons = usageArray.length
+            
+            let column1 = []
+            let column2 = []
+
+            if (snake) {
+                usageArray.forEach((poke, index) => {
+                    if (index % 2 == 0){
+                        column1.push(poke)
+                    } else {
+                        column2.push(poke)
+                    }
+                })
+            } else {
+                column1 = usageArray.slice(0, Math.ceil(uniqueMons / 2))
+                column2 = usageArray.slice(Math.ceil(uniqueMons / 2))
+            }
+
+            let column1Formulas = []
+            let column2Formulas = []
+            
+            column1.forEach((poke) => {
+                column1Formulas.push(`={IMAGE("https://www.smogon.com/forums//media/minisprites/${poke.url}.png"),"${poke.name}","${Math.round(poke.percent * 100) / 100}%","${poke.count}"}`);
+            })
+
+            column2.forEach((poke) => {
+                column2Formulas.push(`={IMAGE("https://www.smogon.com/forums//media/minisprites/${poke.url}.png"),"${poke.name}","${Math.round(poke.percent * 100) / 100}%","${poke.count}"}`);
+            })
+
+            outputTeamsArea.value = allFormulas.join('\n');
+            outputTab1Area.value = column1Formulas.join('\n');
+            outputTab2Area.value = column2Formulas.join('\n');
+        }
+    </script>
+
+</body>
+</html>
